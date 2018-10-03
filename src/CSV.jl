@@ -252,7 +252,7 @@ function __init__()
     FUNCTIONMAP[WeakRefString{UInt8}] = @cfunction(getsetWeakRefString!, Cvoid, (Any, Any, Cssize_t, Cssize_t))
     FUNCTIONMAP[CatStr] = @cfunction(getsetCatStr!, Cvoid, (Any, Any, Cssize_t, Cssize_t))
     FUNC_ANY[] = @cfunction(getsetAny!, Cvoid, (Any, Any, Cssize_t, Cssize_t))
-    CSV.File(joinpath(@__DIR__, "../test/testfiles/test_utf8.csv"), allowmissing=:auto) |> DataFrame
+    CSV.read(joinpath(@__DIR__, "../test/testfiles/test_types.csv"), types=Dict(:weakrefstring=>WeakRefString{UInt8}))
     return
 end
 
