@@ -2,6 +2,10 @@ using DataStreams, DataFrames
 
 import Parsers: readbyte, peekbyte
 
+substitute(::Type{Union{T, Missing}}, ::Type{T1}) where {T, T1} = Union{T1, Missing}
+substitute(::Type{T}, ::Type{T1}) where {T, T1} = T1
+substitute(::Type{Missing}, ::Type{T1}) where {T1} = Missing
+
 """
 Represents the various configuration settings for delimited text file parsing.
 
@@ -200,6 +204,18 @@ promote_type1(::Type{String}, ::Type{Missing}) = Union{String, Missing}
 promote_type1(::Type{Missing}, ::Type{String}) = Union{String, Missing}
 promote_type1(::Type{Any}, ::Type{Missing}) = Missing
 promote_type1(::Type{Missing}, ::Type{Missing}) = Missing
+
+function incr!(dict::Dict{String, Int}, key::Tuple{Ptr{UInt8}, Int})
+    index = Base.ht_keyindex2!(dict, key)
+    if index > 0
+        @inbounds dict.vals[index] += 1
+        return
+    else
+        kk::String = convert(String, key)
+        @inbounds Base._setindex!(dict, 1, kk, -index)
+        return
+    end
+end
 
 function detecttype(layers::Parsers.Delimited, io::IO, prevT, levels, row, col, bools, dateformat, dec, old)
     pos = position(io)
